@@ -6,6 +6,7 @@ class LSB():
     def __init__(self, inputFilePath: str, outputFilePath: str):
         self.inputFilePath = inputFilePath
         self.outputFilePath = outputFilePath
+        self.PAD_CHAR = '#'
 
     # read wave audio file frames and convert to byte array
     def read_wave(self):
@@ -22,7 +23,7 @@ class LSB():
 
     def hide_data(self, string: str):
         # Append dummy data to fill out rest of the bytes.
-        string = string + int((len(self.frame_bytes)-(len(string)*8*8))/8) *'#'
+        string = string.ljust(int((len(self.frame_bytes)-(len(string)*8*8))/8), self.PAD_CHAR)
         
         # Convert text to bitarray
         bits = self.text_to_bitarray(string)
@@ -45,10 +46,9 @@ class LSB():
         # Convert byte array back to string
         string = "".join(chr(int("".join(map(str,extracted[i:i+8])),2)) for i in range(0,len(extracted),8))
         # Cut off at the filler characters
-        decoded = string.split("###")[0]
+        decoded = string.split(3 * self.PAD_CHAR)[0]
 
         return decoded
-
 
 if(__name__ == "__main__"):
     lsb1 = LSB("./sound-examples/ex1.wav","./sound-examples/ex1_LSB.wav")

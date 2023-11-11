@@ -7,6 +7,7 @@ class PhaseCoding():
         self.inputFilePath = inputFilePath
         self.outputFilePath = outputFilePath
         self.PAD = 100
+        self.PAD_CHAR = '#'
 
     # read wave audio file frames and convert to byte array
     # def read_wave(self):
@@ -21,9 +22,9 @@ class PhaseCoding():
         _bitarray.frombytes(string.encode('utf-8'))
         return _bitarray.tolist()
 
-    def encode(self, stringToEncode):
+    def hide_data(self, stringToEncode):
         rate,audioData1 = wavfile.read(self.inputFilePath)
-        stringToEncode = stringToEncode.ljust(self.PAD, '~')
+        stringToEncode = stringToEncode.ljust(self.PAD, self.PAD_CHAR)
         textLength = 8 * len(stringToEncode)
 
         blockLength = int(2 * 2 ** np.ceil(np.log2(2 * textLength)))
@@ -79,8 +80,7 @@ class PhaseCoding():
 
         wavfile.write(self.outputFilePath, rate, audioData.T)
 
-
-    def decode(self):
+    def extract_data(self):
         rate, audioData = wavfile.read(self.outputFilePath)
         textLength = self.PAD * 8
         blockLength = 2 * int(2 ** np.ceil(np.log2(2 * textLength)))
@@ -100,9 +100,9 @@ class PhaseCoding():
         secretInIntCode = secretInBinary.reshape((-1, 8)).dot(1 << np.arange(8 - 1, -1, -1))
 
         # combine characters to original text
-        return "".join(np.char.mod("%c", secretInIntCode)).replace("~", "")    
+        return "".join(np.char.mod("%c", secretInIntCode)).replace(self.PAD_CHAR, "")    
 
 if(__name__ == "__main__"):
     phaseEnc1 = PhaseCoding("./sound-examples/ex1.wav","./sound-examples/ex1_PhaseCoding.wav")
-    phaseEnc1.encode("123456111")
-    print(phaseEnc1.decode())
+    phaseEnc1.hide_data("123456111")
+    print(phaseEnc1.extract_data())
