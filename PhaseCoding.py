@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.io import wavfile
+from bitarray import bitarray
 
-class PhaseEncoding():
+class PhaseCoding():
     def __init__(self, inputFilePath: str, outputFilePath: str):
         self.inputFilePath = inputFilePath
         self.outputFilePath = outputFilePath
@@ -14,6 +15,11 @@ class PhaseEncoding():
     #     self.audioData = audioData1.copy()
 
     #     self.frame_bytes = bytearray(self.audioData)
+
+    def text_to_bitarray(self, string):
+        _bitarray = bitarray(endian='big')
+        _bitarray.frombytes(string.encode('utf-8'))
+        return _bitarray.tolist()
 
     def encode(self, stringToEncode):
         rate,audioData1 = wavfile.read(self.inputFilePath)
@@ -46,9 +52,8 @@ class PhaseEncoding():
         # get phase differences
         phaseDiffs = np.diff(phases, axis=0)
 
-        # conert message to encode into binary
-        textInBinary = np.ravel([[int(y) for y in format(ord(x), "08b")] for x in stringToEncode])
-        #print(textInBinary)
+        # convert string to bitarray, then to numpy.ndarray
+        textInBinary = np.ravel(self.text_to_bitarray(stringToEncode))
 
         # Convert txt to phase differences
         textInPi = textInBinary.copy()
@@ -98,6 +103,6 @@ class PhaseEncoding():
         return "".join(np.char.mod("%c", secretInIntCode)).replace("~", "")    
 
 if(__name__ == "__main__"):
-    phaseEnc1 = PhaseEncoding("./sound-examples/ex1.wav","./sound-examples/ex1_secrett.wav")
+    phaseEnc1 = PhaseCoding("./sound-examples/ex1.wav","./sound-examples/ex1_PhaseCoding.wav")
     phaseEnc1.encode("123456111")
     print(phaseEnc1.decode())

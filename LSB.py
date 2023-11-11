@@ -1,5 +1,6 @@
 from scipy.io import wavfile
 import numpy as np
+from bitarray import bitarray
 
 class LSB():
     def __init__(self, inputFilePath: str, outputFilePath: str):
@@ -14,12 +15,17 @@ class LSB():
 
         self.frame_bytes = bytearray(self.audioData)
 
-    def hide_data(self, string):
+    def text_to_bitarray(self, string):
+        _bitarray = bitarray(endian='big')
+        _bitarray.frombytes(string.encode('utf-8'))
+        return _bitarray.tolist()
+
+    def hide_data(self, string: str):
         # Append dummy data to fill out rest of the bytes.
         string = string + int((len(self.frame_bytes)-(len(string)*8*8))/8) *'#'
-        # Convert text to bit array
-        bits = list(map(int, ''.join([bin(ord(i)).lstrip('0b').rjust(8,'0') for i in string])))
-        #print(bits)
+        
+        # Convert text to bitarray
+        bits = self.text_to_bitarray(string)
 
         # Replace LSB of each byte of the audio data by one bit from the text bit array
         for i, bit in enumerate(bits):
@@ -45,7 +51,7 @@ class LSB():
 
 
 if(__name__ == "__main__"):
-    lsb1 = LSB("./sound-examples/ex1.wav","./sound-examples/ex1_secret.wav")
+    lsb1 = LSB("./sound-examples/ex1.wav","./sound-examples/ex1_LSB.wav")
     lsb1.read_wave()
     lsb1.hide_data("data to hide in a file")
     print(lsb1.extract_data())
