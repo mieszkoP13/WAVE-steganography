@@ -16,6 +16,9 @@ class LSB():
 
         self.frame_bytes = bytearray(self.audioData)
 
+    def write_wave(self, data):
+        wavfile.write(self.outputFilePath, self.rate, data)
+
     def text_to_bitarray(self, string):
         _bitarray = bitarray(endian='big')
         _bitarray.frombytes(string.encode('utf-8'))
@@ -32,7 +35,7 @@ class LSB():
         for i, bit in enumerate(bits):
             self.frame_bytes[i] = (self.frame_bytes[i] & 254) | bit
 
-        wavfile.write(self.outputFilePath, self.rate, np.frombuffer(self.frame_bytes, dtype=np.int32))
+        self.write_wave(np.frombuffer(self.frame_bytes, dtype=np.int32))
 
     def extract_data(self):
         rate1,audioData1 = wavfile.read(self.outputFilePath)

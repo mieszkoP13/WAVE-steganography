@@ -10,12 +10,15 @@ class PhaseCoding():
         self.PAD_CHAR = '#'
 
     # read wave audio file frames and convert to byte array
-    # def read_wave(self):
-    #     rate1,audioData1 = wavfile.read(self.inputFilePath)
-    #     self.rate = rate1
-    #     self.audioData = audioData1.copy()
+    def read_wave(self):
+        rate1,audioData1 = wavfile.read(self.inputFilePath)
+        self.rate = rate1
+        self.audioData = audioData1.copy()
 
-    #     self.frame_bytes = bytearray(self.audioData)
+        self.frame_bytes = bytearray(self.audioData)
+
+    def write_wave(self, data):
+        wavfile.write(self.outputFilePath, self.rate, data)
 
     def text_to_bitarray(self, string):
         _bitarray = bitarray(endian='big')
@@ -23,23 +26,21 @@ class PhaseCoding():
         return _bitarray.tolist()
 
     def hide_data(self, stringToEncode):
-        rate,audioData1 = wavfile.read(self.inputFilePath)
         stringToEncode = stringToEncode.ljust(self.PAD, self.PAD_CHAR)
         textLength = 8 * len(stringToEncode)
 
         blockLength = int(2 * 2 ** np.ceil(np.log2(2 * textLength)))
-        blockNumber = int(np.ceil(audioData1.shape[0] / blockLength))
-        audioData = audioData1.copy()
+        blockNumber = int(np.ceil(self.audioData.shape[0] / blockLength))
 
         # checks shape to change data to 1 axis
-        if len(audioData1.shape) == 1:
-            audioData.resize(blockNumber * blockLength, refcheck=False)
-            audioData = audioData[np.newaxis]
+        if len(self.audioData.shape) == 1:
+            self.audioData.resize(blockNumber * blockLength, refcheck=False)
+            self.audioData = self.audioData[np.newaxis]
         else:
-            audioData.resize((blockNumber * blockLength, audioData.shape[1]), refcheck=False)
-            audioData = audioData.T
+            self.audioData.resize((blockNumber * blockLength, self.audioData.shape[1]), refcheck=False)
+            self.audioData = self.audioData.T
 
-        blocks = audioData[0].reshape((blockNumber, blockLength))
+        blocks = self.audioData[0].reshape((blockNumber, blockLength))
 
         # Calculate DFT using fft
         blocks = np.fft.fft(blocks)
@@ -67,7 +68,7 @@ class PhaseCoding():
         phases[0, blockMid - textLength: blockMid] = textInPi
         phases[0, blockMid + 1: blockMid + 1 + textLength] = -textInPi[::-1]
 
-        # re compute the ophase amtrix
+        # re compute the ophase matrix
         for i in range(1, len(phases)):
             phases[i] = phases[i - 1] + phaseDiffs[i - 1]
 
@@ -76,9 +77,9 @@ class PhaseCoding():
         blocks = np.fft.ifft(blocks).real
 
         # combining all block of audio again
-        audioData[0] = blocks.ravel().astype(np.int16)    
+        self.audioData[0] = blocks.ravel().astype(np.int16)    
 
-        wavfile.write(self.outputFilePath, rate, audioData.T)
+        self.write_wave(self.audioData.T)
 
     def extract_data(self):
         rate, audioData = wavfile.read(self.outputFilePath)
@@ -104,5 +105,6 @@ class PhaseCoding():
 
 if(__name__ == "__main__"):
     phaseEnc1 = PhaseCoding("./sound-examples/ex1.wav","./sound-examples/ex1_PhaseCoding.wav")
+    phaseEnc1.read_wave()
     phaseEnc1.hide_data("123456111")
     print(phaseEnc1.extract_data())
