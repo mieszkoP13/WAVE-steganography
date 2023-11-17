@@ -1,9 +1,10 @@
+from SteganographicMethod import SteganographicMethod
 from Wave import Wave
 import numpy as np
 from bitarray import bitarray
 import os
 
-class LSB():
+class LSB(SteganographicMethod):
     def __init__(self, inputFilePath: str):
         self.PAD_CHAR = '#'
         self.inputWave = Wave(inputFilePath)

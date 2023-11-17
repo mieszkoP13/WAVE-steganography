@@ -1,9 +1,10 @@
+from SteganographicMethod import SteganographicMethod
 from Wave import Wave
 import numpy as np
 from bitarray import bitarray
 import os
 
-class PhaseCoding():
+class PhaseCoding(SteganographicMethod):
     def __init__(self, inputFilePath: str):
         self.PAD = 100
         self.PAD_CHAR = '#'
@@ -11,7 +12,7 @@ class PhaseCoding():
 
         inputFileName = os.path.splitext(inputFilePath)[0] # extract file name out of file path
         outputFilePath = f'{inputFileName}_PhaseCoding.wav' # create output file name
-        
+
         self.outputWave = Wave(outputFilePath)
 
     def text_to_bitarray(self, string):
