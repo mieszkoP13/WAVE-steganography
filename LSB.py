@@ -1,23 +1,12 @@
-from scipy.io import wavfile
+from Wave import Wave
 import numpy as np
+from scipy.io import wavfile
 from bitarray import bitarray
 
 class LSB():
     def __init__(self, inputFilePath: str, outputFilePath: str):
-        self.inputFilePath = inputFilePath
-        self.outputFilePath = outputFilePath
         self.PAD_CHAR = '#'
-
-    # read wave audio file frames and convert to byte array
-    def read_wave(self):
-        rate1,audioData1 = wavfile.read(self.inputFilePath)
-        self.rate = rate1
-        self.audioData = audioData1.copy()
-
-        self.frame_bytes = bytearray(self.audioData)
-
-    def write_wave(self, data):
-        wavfile.write(self.outputFilePath, self.rate, data)
+        self.wave = Wave(inputFilePath, outputFilePath)
 
     def text_to_bitarray(self, string):
         _bitarray = bitarray(endian='big')
@@ -25,36 +14,27 @@ class LSB():
         return _bitarray.tolist()
 
     def hide_data(self, string: str):
+        self.wave.read_wave(self.wave.inputFilePath)
         # Append dummy data to fill out rest of the bytes.
-        string = string.ljust(int((len(self.frame_bytes)-(len(string)*8*8))/8), self.PAD_CHAR)
+        string = string.ljust(int((len(self.wave.frame_bytes)-(len(string)*8*8))/8), self.PAD_CHAR)
         
         # Convert text to bitarray
         bits = self.text_to_bitarray(string)
 
         # Replace LSB of each byte of the audio data by one bit from the text bit array
         for i, bit in enumerate(bits):
-            self.frame_bytes[i] = (self.frame_bytes[i] & 254) | bit
+            self.wave.frame_bytes[i] = (self.wave.frame_bytes[i] & 254) | bit
 
-        self.write_wave(np.frombuffer(self.frame_bytes, dtype=np.int32))
+        self.wave.write_wave(np.frombuffer(self.wave.frame_bytes, dtype=np.int32))
 
     def extract_data(self):
-        rate1,audioData1 = wavfile.read(self.outputFilePath)
-        self.rate = rate1
-        self.audioData = audioData1.copy()
-
-        self.frame_bytes = bytearray(self.audioData)
+        self.wave.read_wave(self.wave.outputFilePath)
 
         # Extract the LSB of each byte
-        extracted = [self.frame_bytes[i] & 1 for i in range(len(self.frame_bytes))]
+        extracted = [self.wave.frame_bytes[i] & 1 for i in range(len(self.wave.frame_bytes))]
         # Convert byte array back to string
         string = "".join(chr(int("".join(map(str,extracted[i:i+8])),2)) for i in range(0,len(extracted),8))
         # Cut off at the filler characters
         decoded = string.split(3 * self.PAD_CHAR)[0]
 
         return decoded
-
-if(__name__ == "__main__"):
-    lsb1 = LSB("./sound-examples/ex1.wav","./sound-examples/ex1_LSB.wav")
-    lsb1.read_wave()
-    lsb1.hide_data("data to hide in a file")
-    print(lsb1.extract_data())

@@ -1,24 +1,13 @@
+from Wave import Wave
 import numpy as np
 from scipy.io import wavfile
 from bitarray import bitarray
 
 class PhaseCoding():
     def __init__(self, inputFilePath: str, outputFilePath: str):
-        self.inputFilePath = inputFilePath
-        self.outputFilePath = outputFilePath
         self.PAD = 100
         self.PAD_CHAR = '#'
-
-    # read wave audio file frames and convert to byte array
-    def read_wave(self):
-        rate1,audioData1 = wavfile.read(self.inputFilePath)
-        self.rate = rate1
-        self.audioData = audioData1.copy()
-
-        self.frame_bytes = bytearray(self.audioData)
-
-    def write_wave(self, data):
-        wavfile.write(self.outputFilePath, self.rate, data)
+        self.wave = Wave(inputFilePath, outputFilePath)
 
     def text_to_bitarray(self, string):
         _bitarray = bitarray(endian='big')
@@ -26,21 +15,22 @@ class PhaseCoding():
         return _bitarray.tolist()
 
     def hide_data(self, stringToEncode):
+        self.wave.read_wave(self.wave.inputFilePath)
         stringToEncode = stringToEncode.ljust(self.PAD, self.PAD_CHAR)
         textLength = 8 * len(stringToEncode)
 
         blockLength = int(2 * 2 ** np.ceil(np.log2(2 * textLength)))
-        blockNumber = int(np.ceil(self.audioData.shape[0] / blockLength))
+        blockNumber = int(np.ceil(self.wave.audioData.shape[0] / blockLength))
 
         # checks shape to change data to 1 axis
-        if len(self.audioData.shape) == 1:
-            self.audioData.resize(blockNumber * blockLength, refcheck=False)
-            self.audioData = self.audioData[np.newaxis]
+        if len(self.wave.audioData.shape) == 1:
+            self.wave.audioData.resize(blockNumber * blockLength, refcheck=False)
+            self.wave.audioData = self.wave.audioData[np.newaxis]
         else:
-            self.audioData.resize((blockNumber * blockLength, self.audioData.shape[1]), refcheck=False)
-            self.audioData = self.audioData.T
+            self.wave.audioData.resize((blockNumber * blockLength, self.wave.audioData.shape[1]), refcheck=False)
+            self.wave.audioData = self.wave.audioData.T
 
-        blocks = self.audioData[0].reshape((blockNumber, blockLength))
+        blocks = self.wave.audioData[0].reshape((blockNumber, blockLength))
 
         # Calculate DFT using fft
         blocks = np.fft.fft(blocks)
@@ -77,21 +67,21 @@ class PhaseCoding():
         blocks = np.fft.ifft(blocks).real
 
         # combining all block of audio again
-        self.audioData[0] = blocks.ravel().astype(np.int16)    
+        self.wave.audioData[0] = blocks.ravel().astype(np.int16)    
 
-        self.write_wave(self.audioData.T)
+        self.wave.write_wave(self.wave.audioData.T)
 
     def extract_data(self):
-        rate, audioData = wavfile.read(self.outputFilePath)
+        self.wave.read_wave(self.wave.outputFilePath)
         textLength = self.PAD * 8
         blockLength = 2 * int(2 ** np.ceil(np.log2(2 * textLength)))
         blockMid = blockLength // 2
 
         # get header info
-        if len(audioData.shape) == 1:
-            secret = audioData[:blockLength]
+        if len(self.wave.audioData.shape) == 1:
+            secret = self.wave.audioData[:blockLength]
         else:
-            secret = audioData[:blockLength, 0]
+            secret = self.wave.audioData[:blockLength, 0]
 
         # get the phase and convert it to binary
         secretPhases = np.angle(np.fft.fft(secret))[blockMid - textLength:blockMid]
@@ -101,10 +91,4 @@ class PhaseCoding():
         secretInIntCode = secretInBinary.reshape((-1, 8)).dot(1 << np.arange(8 - 1, -1, -1))
 
         # combine characters to original text
-        return "".join(np.char.mod("%c", secretInIntCode)).replace(self.PAD_CHAR, "")    
-
-if(__name__ == "__main__"):
-    phaseEnc1 = PhaseCoding("./sound-examples/ex1.wav","./sound-examples/ex1_PhaseCoding.wav")
-    phaseEnc1.read_wave()
-    phaseEnc1.hide_data("123456111")
-    print(phaseEnc1.extract_data())
+        return "".join(np.char.mod("%c", secretInIntCode)).replace(self.PAD_CHAR, "")
