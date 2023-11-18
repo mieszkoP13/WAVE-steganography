@@ -15,13 +15,15 @@ class PhaseCoding(SteganographicMethod):
 
         self.outputWave = Wave(outputFilePath)
 
+        self.inputWave.read_wave()
+        self.outputWave.read_wave()
+
     def text_to_bitarray(self, string):
         _bitarray = bitarray(endian='big')
         _bitarray.frombytes(string.encode('utf-8'))
         return _bitarray.tolist()
 
     def hide_data(self, stringToEncode):
-        self.inputWave.read_wave()
         stringToEncode = stringToEncode.ljust(self.PAD, self.PAD_CHAR)
         textLength = 8 * len(stringToEncode)
 
@@ -75,7 +77,6 @@ class PhaseCoding(SteganographicMethod):
         # combining all block of audio again
         self.inputWave.audioData[0] = blocks.ravel().astype(np.int16)    
 
-        self.outputWave.read_wave()
         self.outputWave.write_wave(self.inputWave.audioData.T)
 
     def extract_data(self):

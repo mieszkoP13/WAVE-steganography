@@ -14,13 +14,15 @@ class LSB(SteganographicMethod):
 
         self.outputWave = Wave(outputFilePath)
 
+        self.inputWave.read_wave()
+        self.outputWave.read_wave()
+
     def text_to_bitarray(self, string):
         _bitarray = bitarray(endian='big')
         _bitarray.frombytes(string.encode('utf-8'))
         return _bitarray.tolist()
 
     def hide_data(self, string: str):
-        self.inputWave.read_wave()
         # Append dummy data to fill out rest of the bytes.
         string = string.ljust(int((len(self.inputWave.frame_bytes)-(len(string)*8*8))/8), self.PAD_CHAR)
         
@@ -31,7 +33,6 @@ class LSB(SteganographicMethod):
         for i, bit in enumerate(bits):
             self.inputWave.frame_bytes[i] = (self.inputWave.frame_bytes[i] & 254) | bit
 
-        self.outputWave.read_wave()
         self.outputWave.write_wave(np.frombuffer(self.inputWave.frame_bytes, dtype=np.int32))
 
     def extract_data(self):
