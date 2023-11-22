@@ -23,13 +23,13 @@ class LSB(SteganographicMethod):
         return _bitarray.tolist()
 
     def hide_data(self, string: str):
-        # Append dummy data to fill out rest of the bytes.
+        # append random data to fill rest of the file
         string = string.ljust(int((len(self.inputWave.frame_bytes)-(len(string)*8*8))/8), self.PAD_CHAR)
         
-        # Convert text to bitarray
+        # convert text to bitarray
         bits = self.text_to_bitarray(string)
 
-        # Replace LSB of each byte of the audio data by one bit from the text bit array
+        # replace LSB of each byte
         for i, bit in enumerate(bits):
             self.inputWave.frame_bytes[i] = (self.inputWave.frame_bytes[i] & 254) | bit
 
@@ -38,11 +38,13 @@ class LSB(SteganographicMethod):
     def extract_data(self):
         self.outputWave.read_wave()
 
-        # Extract the LSB of each byte
+        # extract the LSB of each byte
         extracted = [self.outputWave.frame_bytes[i] & 1 for i in range(len(self.outputWave.frame_bytes))]
-        # Convert byte array back to string
-        string = "".join(chr(int("".join(map(str,extracted[i:i+8])),2)) for i in range(0,len(extracted),8))
-        # Cut off at the filler characters
-        decoded = string.split(3 * self.PAD_CHAR)[0]
 
-        return decoded
+        # convert byte array to string
+        string = "".join(chr(int("".join(map(str,extracted[i:i+8])),2)) for i in range(0,len(extracted),8))
+
+        # extract the message
+        extracted = string.split(4 * self.PAD_CHAR)[0]
+
+        return extracted
