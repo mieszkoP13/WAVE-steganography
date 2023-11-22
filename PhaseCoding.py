@@ -30,8 +30,6 @@ class PhaseCoding(SteganographicMethod):
         blockLength = int(2 * 2 ** np.ceil(np.log2(2 * textLength)))
         blockNumber = int(np.ceil(self.inputWave.audioData.shape[0] / blockLength))
 
-        print(self.inputWave.audioData)
-
         # checks shape to change data to 1 axis
         if len(self.inputWave.audioData.shape) == 1:
             self.inputWave.audioData.resize(blockNumber * blockLength, refcheck=False)
@@ -39,9 +37,6 @@ class PhaseCoding(SteganographicMethod):
         else:
             self.inputWave.audioData.resize((blockNumber * blockLength, self.inputWave.audioData.shape[1]), refcheck=False)
             self.inputWave.audioData = self.inputWave.audioData.T
-
-        print(self.inputWave.audioData)
-
 
         blocks = self.inputWave.audioData[0].reshape((blockNumber, blockLength))
 
