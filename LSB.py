@@ -15,7 +15,7 @@ class LSB(SteganographicMethod):
         self.outputWave = Wave(outputFilePath)
 
         self.inputWave.read_wave()
-        self.outputWave.read_wave()
+        self.outputWave.rate = self.inputWave.rate
 
     def text_to_bitarray(self, string):
         _bitarray = bitarray(endian='big')
