@@ -93,9 +93,4 @@ class CLI():
                 self.hide_phase_coding(args)
             elif args.extract_phase_coding != None:
                 self.extract_phase_coding(args)
-
-
-if __name__ == "__main__":
-    cli = CLI()
-    cli.config()
-    
+                
