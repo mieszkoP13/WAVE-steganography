@@ -12,7 +12,7 @@ class CLI():
         self.lsb: LSB = LSB()
         self.phaseEncoding: PhaseCoding = PhaseCoding()
 
-        self.parser = argparse.ArgumentParser(description = "Steganography methods manager")
+        self.parser = argparse.ArgumentParser(description = "Steganography app manager")
         self.config()
 
     def validate_file(self, fileName: str):
@@ -56,24 +56,24 @@ class CLI():
     
     def config(self):
         self.parser.add_argument("-hl", "--hide-lsb", type = str, nargs = 1,
-                            metavar = "file_name", default = None,
-                            help = "Hide data using LSB method in specified file.")
+                            metavar = "fileName", default = None,
+                            help = "hide data using LSB method in specified file")
         
         self.parser.add_argument("-el", "--extract-lsb", type = str, nargs = 1,
-                            metavar = "file_name", default = None,
-                            help = "Extract data using LSB method from specified file.")
+                            metavar = "fileName", default = None,
+                            help = "extract data using LSB method from specified file")
         
         self.parser.add_argument("-hp", "--hide-phase-coding", type = str, nargs = 1,
-                            metavar = "file_name", default = None,
-                            help = "Hide data using Phase Coding method in specified file.")
+                            metavar = "fileName", default = None,
+                            help = "hide data using Phase Coding method in specified file")
         
         self.parser.add_argument("-ep", "--extract-phase-coding", type = str, nargs = 1,
-                            metavar = "file_name", default = None,
-                            help = "Extract data using Phase Coding method from specified file.")
+                            metavar = "fileName", default = None,
+                            help = "extract data using Phase Coding method from specified file")
         
         self.parser.add_argument("-s", "--show", type = str, nargs = 1,
                             metavar = "path", default = None,
-                            help = "Shows all wav files in specified directory path.\
+                            help = "show all wav files in specified directory path.\
                             Type '.' for current directory.")
 
         self.args: argparse.Namespace = self.parser.parse_args()
