@@ -18,14 +18,14 @@ class PhaseCoding(SteganographicMethod):
         _bitarray.frombytes(string.encode('utf-8'))
         return _bitarray.tolist()
     
-    def init_hide(self, inputFilePath: str):
-        self.inputWave = Wave(inputFilePath)
-        self.outputWave = Wave(self.create_outputFile_name(inputFilePath))
+    def init_wave(self, inputFilePath: str):
+        self.inputWave: Wave = Wave(inputFilePath)
+        self.outputWave: Wave = Wave(self.create_outputFile_name(inputFilePath))
         self.inputWave.read_wave()
         self.outputWave.rate = self.inputWave.rate
 
     def hide_data(self, inputFilePath: str, string: str):
-        self.init_hide(inputFilePath)
+        self.init_wave(inputFilePath)
 
         string = string.ljust(self.PAD, self.PAD_CHAR)
 
@@ -82,12 +82,8 @@ class PhaseCoding(SteganographicMethod):
 
         self.outputWave.write_wave(self.inputWave.audioData.T)
 
-    def init_extract(self, inputFilePath: str):
-        self.inputWave = Wave(inputFilePath)
-        self.inputWave.read_wave()
-
     def extract_data(self, inputFilePath: str):
-        self.init_extract(inputFilePath)
+        self.init_wave(inputFilePath)
 
         textLength = self.PAD * 8
         blockLength = 2 * int(2 ** np.ceil(np.log2(2 * textLength)))

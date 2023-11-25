@@ -9,38 +9,41 @@ INVALID_PATH_MSG = "Error: Invalid file path/name. Path %s does not exist."
 
 class CLI():
     def __init__(self):
-        self.lsb1 = LSB()
-        self.phaseEnc1 = PhaseCoding()
+        self.lsb: LSB = LSB()
+        self.phaseEncoding: PhaseCoding = PhaseCoding()
 
-    def validate_file(self, file_name):
-        if not self.valid_path(file_name):
-            print(INVALID_PATH_MSG%(file_name))
+        self.parser = argparse.ArgumentParser(description = "Steganography methods manager")
+        self.config()
+
+    def validate_file(self, fileName: str):
+        if not self.valid_path(fileName):
+            print(INVALID_PATH_MSG%(fileName))
             quit()
-        elif not self.valid_filetype(file_name):
-            print(INVALID_FILETYPE_MSG%(file_name))
+        elif not self.valid_filetype(fileName):
+            print(INVALID_FILETYPE_MSG%(fileName))
             quit()
         return
         
-    def valid_filetype(self, file_name):
-        return file_name.endswith('.wav')
+    def valid_filetype(self, fileName: str):
+        return fileName.endswith('.wav')
     
-    def valid_path(self, path):
+    def valid_path(self, path: str):
         return os.path.exists(path)
 
-    def hide_lsb(self, args):
-        self.lsb1.hide_data(args.file_path[0],"data to hide lsb")
+    def hide_lsb(self):
+        self.lsb.hide_data(self.args.file_path[0],"data to hide lsb")
         
-    def extract_lsb(self, args):
-        print(self.lsb1.extract_data(args.file_path[0]))
+    def extract_lsb(self):
+        print(self.lsb.extract_data(self.args.file_path[0]))
         
-    def hide_phase_coding(self, args):
-        self.phaseEnc1.hide_data(args.file_path[0], "data to hide phase coding")
+    def hide_phase_coding(self):
+        self.phaseEncoding.hide_data(self.args.file_path[0], "data to hide phase coding")
         
-    def extract_phase_coding(self, args):
-        print(self.phaseEnc1.extract_data(args.file_path[0]))
+    def extract_phase_coding(self):
+        print(self.phaseEncoding.extract_data(self.args.file_path[0]))
         
-    def show(self, args):
-        path = args.show[0]
+    def show(self):
+        path = self.args.show[0]
         
         if not self.valid_path(path):
             print("Error: No such directory.")
@@ -52,41 +55,37 @@ class CLI():
         print('   '.join(f for f in files))
     
     def config(self):
-        # create parser object
-        parser = argparse.ArgumentParser(description = "Steganography methods manager")
-
-        # defining arguments for parser object
-        parser.add_argument("-hl", "--hide-lsb", action='store_true', default = None,
+        self.parser.add_argument("-hl", "--hide-lsb", action='store_true', default = None,
                             help = "If wave file is specified, hide data in it using LSB method.")
         
-        parser.add_argument("-el", "--extract-lsb", action='store_true', default = None,
+        self.parser.add_argument("-el", "--extract-lsb", action='store_true', default = None,
                             help = "If wave file is specified, extract data from it using LSB method.")
         
-        parser.add_argument("-hp", "--hide-phase-coding", action='store_true', default = None,
+        self.parser.add_argument("-hp", "--hide-phase-coding", action='store_true', default = None,
                             help = "If wave file is specified, hide data in it using Phase Coding method.")
         
-        parser.add_argument("-ep", "--extract-phase-coding", action='store_true', default = None,
+        self.parser.add_argument("-ep", "--extract-phase-coding", action='store_true', default = None,
                             help = "If wave file is specified, extract data from it using Phase Coding method.")
         
-        parser.add_argument("-fp", "--file-path", type = str, nargs = 1,
+        self.parser.add_argument("-fp", "--file-path", type = str, nargs = 1,
                             metavar = "file_name", default = None,
                             help = "Specifies file path to use in hide/extract methods.")
         
-        parser.add_argument("-s", "--show", type = str, nargs = 1,
+        self.parser.add_argument("-s", "--show", type = str, nargs = 1,
                             metavar = "path", default = None,
                             help = "Shows all wav files in specified directory path.\
                             Type '.' for current directory.")
 
-        args = parser.parse_args()
+        self.args: argparse.Namespace = self.parser.parse_args()
         
-        if args.show != None:
-            self.show(args)
-        elif args.file_path != None:
-            if args.hide_lsb != None:
-                self.hide_lsb(args)
-            elif args.extract_lsb != None:
-                self.extract_lsb(args)
-            elif args.hide_phase_coding != None:
-                self.hide_phase_coding(args)
-            elif args.extract_phase_coding != None:
-                self.extract_phase_coding(args)
+        if self.args.show != None:
+            self.show()
+        elif self.args.file_path != None:
+            if self.args.hide_lsb != None:
+                self.hide_lsb()
+            elif self.args.extract_lsb != None:
+                self.extract_lsb()
+            elif self.args.hide_phase_coding != None:
+                self.hide_phase_coding()
+            elif self.args.extract_phase_coding != None:
+                self.extract_phase_coding()
