@@ -5,25 +5,28 @@ from bitarray import bitarray
 import os
 
 class PhaseCoding(SteganographicMethod):
-    def __init__(self, inputFilePath: str):
+    def __init__(self):
         self.PAD = 100
         self.PAD_CHAR = '#'
-        self.inputWave = Wave(inputFilePath)
 
+    def create_outputFile_name(self, inputFilePath: str):
         inputFileName = os.path.splitext(inputFilePath)[0] # extract file name out of file path
-        outputFilePath = f'{inputFileName}_PhaseCoding.wav' # create output file name
+        return f'{inputFileName}_PhaseCoding.wav' # create output file name
 
-        self.outputWave = Wave(outputFilePath)
-
-        self.inputWave.read_wave()
-        self.outputWave.rate = self.inputWave.rate
-
-    def text_to_bitarray(self, string):
+    def text_to_bitarray(self, string: str):
         _bitarray = bitarray(endian='big')
         _bitarray.frombytes(string.encode('utf-8'))
         return _bitarray.tolist()
+    
+    def init_hide(self, inputFilePath: str):
+        self.inputWave = Wave(inputFilePath)
+        self.outputWave = Wave(self.create_outputFile_name(inputFilePath))
+        self.inputWave.read_wave()
+        self.outputWave.rate = self.inputWave.rate
 
-    def hide_data(self, string):
+    def hide_data(self, inputFilePath: str, string: str):
+        self.init_hide(inputFilePath)
+
         string = string.ljust(self.PAD, self.PAD_CHAR)
 
         textLength = 8 * len(string)
@@ -79,18 +82,22 @@ class PhaseCoding(SteganographicMethod):
 
         self.outputWave.write_wave(self.inputWave.audioData.T)
 
-    def extract_data(self):
-        self.outputWave.read_wave()
+    def init_extract(self, inputFilePath: str):
+        self.inputWave = Wave(inputFilePath)
+        self.inputWave.read_wave()
+
+    def extract_data(self, inputFilePath: str):
+        self.init_extract(inputFilePath)
 
         textLength = self.PAD * 8
         blockLength = 2 * int(2 ** np.ceil(np.log2(2 * textLength)))
         blockMid = blockLength // 2
 
         # checks shape
-        if len(self.outputWave.audioData.shape) == 1:
-            secret = self.outputWave.audioData[:blockLength]
+        if len(self.inputWave.audioData.shape) == 1:
+            secret = self.inputWave.audioData[:blockLength]
         else:
-            secret = self.outputWave.audioData[:blockLength, 0]
+            secret = self.inputWave.audioData[:blockLength, 0]
 
         # get phase -> convert to binary -> convert into characters
         secretPhases = np.angle(np.fft.fft(secret))[blockMid - textLength:blockMid]

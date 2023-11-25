@@ -9,7 +9,8 @@ INVALID_PATH_MSG = "Error: Invalid file path/name. Path %s does not exist."
 
 class CLI():
     def __init__(self):
-        pass
+        self.lsb1 = LSB()
+        self.phaseEnc1 = PhaseCoding()
 
     def validate_file(self, file_name):
         if not self.valid_path(file_name):
@@ -27,32 +28,28 @@ class CLI():
         return os.path.exists(path)
 
     def hide_lsb(self, args):
-        self.lsb1 = LSB(args.file_path[0])
-        self.lsb1.hide_data("data to hide lsb")
+        self.lsb1.hide_data(args.file_path[0],"data to hide lsb")
         
     def extract_lsb(self, args):
-        self.lsb1 = LSB(args.file_path[0])
-        print(self.lsb1.extract_data())
+        print(self.lsb1.extract_data(args.file_path[0]))
         
     def hide_phase_coding(self, args):
-        self.phaseEnc1 = PhaseCoding(args.file_path[0])
-        self.phaseEnc1.hide_data("data to hide phase coding")
+        self.phaseEnc1.hide_data(args.file_path[0], "data to hide phase coding")
         
     def extract_phase_coding(self, args):
-        self.phaseEnc1 = PhaseCoding(args.file_path[0])
-        print(self.phaseEnc1.extract_data())
+        print(self.phaseEnc1.extract_data(args.file_path[0]))
         
     def show(self, args):
-        dir_path = args.show[0]
+        path = args.show[0]
         
-        if not self.valid_path(dir_path):
-            print("Error: No such directory found.")
+        if not self.valid_path(path):
+            print("Error: No such directory.")
             exit()
     
         # get wav files in directory
-        files = [f for f in os.listdir(dir_path) if self.valid_filetype(f)]
-        print("{} wav files found.".format(len(files)))
-        print('\n'.join(f for f in files))
+        files = [f for f in os.listdir(path) if self.valid_filetype(f)]
+        print(f"{len(files)} wav files found.")
+        print('   '.join(f for f in files))
     
     def config(self):
         # create parser object
@@ -93,4 +90,3 @@ class CLI():
                 self.hide_phase_coding(args)
             elif args.extract_phase_coding != None:
                 self.extract_phase_coding(args)
-                
