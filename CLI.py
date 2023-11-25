@@ -31,16 +31,16 @@ class CLI():
         return os.path.exists(path)
 
     def hide_lsb(self):
-        self.lsb.hide_data(self.args.file_path[0],"data to hide lsb")
+        self.lsb.hide_data(self.args.hide_lsb[0], "data to hide lsb")
         
     def extract_lsb(self):
-        print(self.lsb.extract_data(self.args.file_path[0]))
+        print(self.lsb.extract_data(self.args.extract_lsb[0]))
         
     def hide_phase_coding(self):
-        self.phaseEncoding.hide_data(self.args.file_path[0], "data to hide phase coding")
+        self.phaseEncoding.hide_data(self.args.hide_phase_coding[0], "data to hide phase coding")
         
     def extract_phase_coding(self):
-        print(self.phaseEncoding.extract_data(self.args.file_path[0]))
+        print(self.phaseEncoding.extract_data(self.args.extract_phase_coding[0]))
         
     def show(self):
         path = self.args.show[0]
@@ -55,21 +55,21 @@ class CLI():
         print('   '.join(f for f in files))
     
     def config(self):
-        self.parser.add_argument("-hl", "--hide-lsb", action='store_true', default = None,
-                            help = "If wave file is specified, hide data in it using LSB method.")
-        
-        self.parser.add_argument("-el", "--extract-lsb", action='store_true', default = None,
-                            help = "If wave file is specified, extract data from it using LSB method.")
-        
-        self.parser.add_argument("-hp", "--hide-phase-coding", action='store_true', default = None,
-                            help = "If wave file is specified, hide data in it using Phase Coding method.")
-        
-        self.parser.add_argument("-ep", "--extract-phase-coding", action='store_true', default = None,
-                            help = "If wave file is specified, extract data from it using Phase Coding method.")
-        
-        self.parser.add_argument("-fp", "--file-path", type = str, nargs = 1,
+        self.parser.add_argument("-hl", "--hide-lsb", type = str, nargs = 1,
                             metavar = "file_name", default = None,
-                            help = "Specifies file path to use in hide/extract methods.")
+                            help = "Hide data using LSB method in specified file.")
+        
+        self.parser.add_argument("-el", "--extract-lsb", type = str, nargs = 1,
+                            metavar = "file_name", default = None,
+                            help = "Extract data using LSB method from specified file.")
+        
+        self.parser.add_argument("-hp", "--hide-phase-coding", type = str, nargs = 1,
+                            metavar = "file_name", default = None,
+                            help = "Hide data using Phase Coding method in specified file.")
+        
+        self.parser.add_argument("-ep", "--extract-phase-coding", type = str, nargs = 1,
+                            metavar = "file_name", default = None,
+                            help = "Extract data using Phase Coding method from specified file.")
         
         self.parser.add_argument("-s", "--show", type = str, nargs = 1,
                             metavar = "path", default = None,
@@ -80,12 +80,11 @@ class CLI():
         
         if self.args.show != None:
             self.show()
-        elif self.args.file_path != None:
-            if self.args.hide_lsb != None:
-                self.hide_lsb()
-            elif self.args.extract_lsb != None:
-                self.extract_lsb()
-            elif self.args.hide_phase_coding != None:
-                self.hide_phase_coding()
-            elif self.args.extract_phase_coding != None:
-                self.extract_phase_coding()
+        elif self.args.hide_lsb != None:
+            self.hide_lsb()
+        elif self.args.extract_lsb != None:
+            self.extract_lsb()
+        elif self.args.hide_phase_coding != None:
+            self.hide_phase_coding()
+        elif self.args.extract_phase_coding != None:
+            self.extract_phase_coding()
