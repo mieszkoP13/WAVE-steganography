@@ -5,24 +5,24 @@ import os
 import argparse
 from typing import List
 
-INVALID_FILETYPE_MSG = "Error: Invalid file format. %s must be a .wav file."
-INVALID_PATH_MSG = "Error: Invalid file path/name. Path %s does not exist."
-
 class CLI():
     def __init__(self, args: List[str] = None):
         self.args = args
         self.lsb: LSB = LSB()
         self.phaseEncoding: PhaseCoding = PhaseCoding()
 
+        self.fileName: str = ""
+        self.secretMessage: str = ""
+
         self.parser = argparse.ArgumentParser(description = "Steganography app manager")
         self.config()
 
     def validate_file(self, fileName: str):
         if not self.valid_path(fileName):
-            print(INVALID_PATH_MSG%(fileName))
+            print(f"Error: Invalid file path/name. Path {fileName} does not exist.")
             quit()
         elif not self.valid_filetype(fileName):
-            print(INVALID_FILETYPE_MSG%(fileName))
+            print(f"Error: Invalid file format. {fileName} must be a .wav file.")
             quit()
         return
         
@@ -33,32 +33,16 @@ class CLI():
         return os.path.exists(path)
 
     def hide_lsb(self):
-        if not self.valid_path(self.args.hide_lsb[0]):
-            print("Error: No such directory.")
-            exit()
-
-        self.lsb.hide_data(self.args.hide_lsb[0], self.args.hide_lsb[1])
+        self.lsb.hide_data(self.fileName, self.secretMessage)
         
     def extract_lsb(self):
-        if not self.valid_path(self.args.extract_lsb[0]):
-            print("Error: No such directory.")
-            exit()
-
-        print(self.lsb.extract_data(self.args.extract_lsb[0]))
+        print(self.lsb.extract_data(self.fileName))
         
     def hide_phase_coding(self):
-        if not self.valid_path(self.args.hide_phase_coding[0]):
-            print("Error: No such directory.")
-            exit()
-
-        self.phaseEncoding.hide_data(self.args.hide_phase_coding[0], self.args.hide_lsb[1])
+        self.phaseEncoding.hide_data(self.fileName, self.secretMessage)
         
     def extract_phase_coding(self):
-        if not self.valid_path(self.args.extract_phase_coding[0]):
-            print("Error: No such directory.")
-            exit()
-
-        print(self.phaseEncoding.extract_data(self.args.extract_phase_coding[0]))
+        print(self.phaseEncoding.extract_data(self.fileName))
         
     def show(self):
         path = self.args.show[0]
@@ -99,10 +83,20 @@ class CLI():
         if self.args.show != None:
             self.show()
         elif self.args.hide_lsb != None:
+            self.fileName = self.args.hide_lsb[0]
+            self.secretMessage = self.args.hide_lsb[1]
+            self.validate_file(self.fileName)
             self.hide_lsb()
         elif self.args.extract_lsb != None:
+            self.fileName = self.args.extract_lsb[0]
+            self.validate_file(self.fileName)
             self.extract_lsb()
         elif self.args.hide_phase_coding != None:
+            self.fileName = self.args.hide_phase_coding[0]
+            self.secretMessage = self.args.hide_phase_coding[1]
+            self.validate_file(self.fileName)
             self.hide_phase_coding()
         elif self.args.extract_phase_coding != None:
+            self.fileName = self.args.extract_phase_coding[0]
+            self.validate_file(self.fileName)
             self.extract_phase_coding()
