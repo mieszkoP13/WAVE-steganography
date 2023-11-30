@@ -1,21 +1,19 @@
 import unittest
 
-from LSB import LSB
-from PhaseCoding import PhaseCoding
+from CLI import CLI
  
-class TestGetAreaRectangle(unittest.TestCase):
-    def setUp(self):
-        self.lsb: LSB = LSB()
-        self.phaseEncoding: PhaseCoding = PhaseCoding()
+class TestSteganographyMethods(unittest.TestCase):
 
-    def test_hide_lsb(self):
-        self.lsb.hide_data("./sound-examples/ex1.wav", "data to hide lsb")
+    def test_lsb(self):
+        cli1 = CLI(["-hl","./sound-examples/ex1.wav","secret message"])
+        cli2 = CLI(["-el","./sound-examples/ex1_LSB.wav"])
 
-        self.assertEqual(self.lsb.extract_data("./sound-examples/ex1_LSB.wav"), "data to hide lsb", "lsb metod procedure went wrong")
-        
+        self.assertEqual(cli1.secretMessage, cli2.secretMessage, "lsb metod procedure went wrong")
+
     def test_phase_coding(self):
-        self.phaseEncoding.hide_data("./sound-examples/ex1.wav", "data to hide phase coding")
+        cli1 = CLI(["-hp","./sound-examples/ex1.wav","secret message"])
+        cli2 = CLI(["-ep","./sound-examples/ex1_PhaseCoding.wav"])
 
-        self.assertEqual(self.phaseEncoding.extract_data("./sound-examples/ex1_PhaseCoding.wav"), "data to hide phase coding", "phase coding metod procedure went wrong")
- 
+        self.assertEqual(cli1.secretMessage, cli2.secretMessage, "phase coding metod procedure went wrong")
+        
 unittest.main()

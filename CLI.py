@@ -36,13 +36,15 @@ class CLI():
         self.lsb.hide_data(self.fileName, self.secretMessage)
         
     def extract_lsb(self):
-        print(self.lsb.extract_data(self.fileName))
+        self.secretMessage = self.lsb.extract_data(self.fileName)
+        print(self.secretMessage)
         
     def hide_phase_coding(self):
         self.phaseEncoding.hide_data(self.fileName, self.secretMessage)
         
     def extract_phase_coding(self):
-        print(self.phaseEncoding.extract_data(self.fileName))
+        self.secretMessage = self.phaseEncoding.extract_data(self.fileName)
+        print(self.secretMessage)
         
     def show(self):
         path = self.args.show[0]
