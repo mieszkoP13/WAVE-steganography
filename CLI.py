@@ -3,12 +3,14 @@ from PhaseCoding import PhaseCoding
 
 import os
 import argparse
+from typing import List
 
 INVALID_FILETYPE_MSG = "Error: Invalid file format. %s must be a .wav file."
 INVALID_PATH_MSG = "Error: Invalid file path/name. Path %s does not exist."
 
 class CLI():
-    def __init__(self):
+    def __init__(self, args: List[str] = None):
+        self.args = args
         self.lsb: LSB = LSB()
         self.phaseEncoding: PhaseCoding = PhaseCoding()
 
@@ -76,7 +78,7 @@ class CLI():
                             help = "show all wav files in specified directory path.\
                             Type '.' for current directory.")
 
-        self.args: argparse.Namespace = self.parser.parse_args()
+        self.args: argparse.Namespace = self.parser.parse_args(self.args)
         
         if self.args.show != None:
             self.show()
