@@ -33,15 +33,31 @@ class CLI():
         return os.path.exists(path)
 
     def hide_lsb(self):
-        self.lsb.hide_data(self.args.hide_lsb[0], "data to hide lsb")
+        if not self.valid_path(self.args.hide_lsb[0]):
+            print("Error: No such directory.")
+            exit()
+
+        self.lsb.hide_data(self.args.hide_lsb[0], self.args.hide_lsb[1])
         
     def extract_lsb(self):
+        if not self.valid_path(self.args.extract_lsb[0]):
+            print("Error: No such directory.")
+            exit()
+
         print(self.lsb.extract_data(self.args.extract_lsb[0]))
         
     def hide_phase_coding(self):
-        self.phaseEncoding.hide_data(self.args.hide_phase_coding[0], "data to hide phase coding")
+        if not self.valid_path(self.args.hide_phase_coding[0]):
+            print("Error: No such directory.")
+            exit()
+
+        self.phaseEncoding.hide_data(self.args.hide_phase_coding[0], self.args.hide_lsb[1])
         
     def extract_phase_coding(self):
+        if not self.valid_path(self.args.extract_phase_coding[0]):
+            print("Error: No such directory.")
+            exit()
+
         print(self.phaseEncoding.extract_data(self.args.extract_phase_coding[0]))
         
     def show(self):
@@ -57,16 +73,16 @@ class CLI():
         print('   '.join(f for f in files))
     
     def config(self):
-        self.parser.add_argument("-hl", "--hide-lsb", type = str, nargs = 1,
-                            metavar = "fileName", default = None,
-                            help = "hide data using LSB method in specified file")
+        self.parser.add_argument("-hl", "--hide-lsb", type = str, nargs = 2,
+                            metavar = ('fileName', 'secretMessage'), default = None,
+                            help = "hide secret message using LSB method in specified file")
         
         self.parser.add_argument("-el", "--extract-lsb", type = str, nargs = 1,
                             metavar = "fileName", default = None,
                             help = "extract data using LSB method from specified file")
         
-        self.parser.add_argument("-hp", "--hide-phase-coding", type = str, nargs = 1,
-                            metavar = "fileName", default = None,
+        self.parser.add_argument("-hp", "--hide-phase-coding", type = str, nargs = 2,
+                            metavar = ('fileName', 'secretMessage'), default = None,
                             help = "hide data using Phase Coding method in specified file")
         
         self.parser.add_argument("-ep", "--extract-phase-coding", type = str, nargs = 1,
