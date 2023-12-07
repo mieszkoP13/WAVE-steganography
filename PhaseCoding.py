@@ -101,4 +101,5 @@ class PhaseCoding(SteganographicMethod):
         secretInIntCode = secretInBinary.reshape((-1, 8)).dot(1 << np.arange(8 - 1, -1, -1))
 
         # combine to original text
-        return "".join(np.char.mod("%c", secretInIntCode)).replace(self.PAD_CHAR, "")
+        extracted = "".join(np.char.mod("%c", secretInIntCode)).split(4 * self.PAD_CHAR)[0]
+        return extracted
