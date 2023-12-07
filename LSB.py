@@ -36,7 +36,13 @@ class LSB(SteganographicMethod):
         for i, bit in enumerate(bits):
             self.inputWave.frame_bytes[i] = (self.inputWave.frame_bytes[i] & 254) | bit
 
-        self.outputWave.write_wave(np.frombuffer(self.inputWave.frame_bytes, dtype=np.int32))
+        # checks shape to change dtype
+        if len(self.inputWave.audioData.shape) == 1:
+            self.dtype=np.int16
+        else:
+            self.dtype=np.int32
+
+        self.outputWave.write_wave(np.frombuffer(self.inputWave.frame_bytes, dtype=self.dtype))
 
     def extract_data(self, inputFilePath: str):
         self.init_wave(inputFilePath)
