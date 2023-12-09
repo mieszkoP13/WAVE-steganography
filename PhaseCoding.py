@@ -20,8 +20,11 @@ class PhaseCoding(SteganographicMethod):
     
     def init_wave(self, inputFilePath: str):
         self.inputWave: Wave = Wave(inputFilePath)
+        self.tempWave: Wave = Wave(inputFilePath)
         self.outputWave: Wave = Wave(self.create_outputFile_name(inputFilePath))
+        
         self.inputWave.read_wave()
+        self.tempWave.read_wave()
         self.outputWave.rate = self.inputWave.rate
 
     def hide_data(self, inputFilePath: str, string: str):
@@ -31,17 +34,17 @@ class PhaseCoding(SteganographicMethod):
 
         textLength = 8 * len(string)
         blockLength = int(2 * 2 ** np.ceil(np.log2(2 * textLength)))
-        blockNumber = int(np.ceil(self.inputWave.audioData.shape[0] / blockLength))
+        blockNumber = int(np.ceil(self.tempWave.audioData.shape[0] / blockLength))
 
         # checks shape to change data to 1 axis
-        if len(self.inputWave.audioData.shape) == 1:
-            self.inputWave.audioData.resize(blockNumber * blockLength, refcheck=False)
-            self.inputWave.audioData = self.inputWave.audioData[np.newaxis]
+        if len(self.tempWave.audioData.shape) == 1:
+            self.tempWave.audioData.resize(blockNumber * blockLength, refcheck=False)
+            self.tempWave.audioData = self.tempWave.audioData[np.newaxis]
         else:
-            self.inputWave.audioData.resize((blockNumber * blockLength, self.inputWave.audioData.shape[1]), refcheck=False)
-            self.inputWave.audioData = self.inputWave.audioData.T
+            self.tempWave.audioData.resize((blockNumber * blockLength, self.tempWave.audioData.shape[1]), refcheck=False)
+            self.tempWave.audioData = self.tempWave.audioData.T
 
-        blocks = self.inputWave.audioData[0].reshape((blockNumber, blockLength))
+        blocks = self.tempWave.audioData[0].reshape((blockNumber, blockLength))
 
         # calculate DFT
         blocks = np.fft.fft(blocks)
@@ -78,9 +81,9 @@ class PhaseCoding(SteganographicMethod):
         blocks = np.fft.ifft(blocks).real
 
         # combine all blocks of audio together
-        self.inputWave.audioData[0] = blocks.ravel().astype(np.int16)    
+        self.tempWave.audioData[0] = blocks.ravel().astype(np.int16)    
 
-        self.outputWave.write_wave(self.inputWave.audioData.T)
+        self.outputWave.write_wave(self.tempWave.audioData.T)
 
     def extract_data(self, inputFilePath: str):
         self.init_wave(inputFilePath)
@@ -90,10 +93,10 @@ class PhaseCoding(SteganographicMethod):
         blockMid = blockLength // 2
 
         # checks shape
-        if len(self.inputWave.audioData.shape) == 1:
-            secret = self.inputWave.audioData[:blockLength]
+        if len(self.tempWave.audioData.shape) == 1:
+            secret = self.tempWave.audioData[:blockLength]
         else:
-            secret = self.inputWave.audioData[:blockLength, 0]
+            secret = self.tempWave.audioData[:blockLength, 0]
 
         # get phase -> convert to binary -> convert into characters
         secretPhases = np.angle(np.fft.fft(secret))[blockMid - textLength:blockMid]

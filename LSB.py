@@ -19,36 +19,39 @@ class LSB(SteganographicMethod):
     
     def init_wave(self, inputFilePath: str):
         self.inputWave: Wave = Wave(inputFilePath)
+        self.tempWave: Wave = Wave(inputFilePath)
         self.outputWave: Wave = Wave(self.create_outputFile_name(inputFilePath))
+        
         self.inputWave.read_wave()
+        self.tempWave.read_wave()
         self.outputWave.rate = self.inputWave.rate
 
     def hide_data(self, inputFilePath: str, string: str):
         self.init_wave(inputFilePath)
 
         # append random data to fill rest of the file
-        string = string.ljust(int((len(self.inputWave.frame_bytes)-(len(string)*8*8))/8), self.PAD_CHAR)
+        string = string.ljust(int((len(self.tempWave.frame_bytes)-(len(string)*8*8))/8), self.PAD_CHAR)
         
         # convert text to bitarray
         bits = self.text_to_bitarray(string)
 
         # replace LSB of each byte
         for i, bit in enumerate(bits):
-            self.inputWave.frame_bytes[i] = (self.inputWave.frame_bytes[i] & 254) | bit
+            self.tempWave.frame_bytes[i] = (self.tempWave.frame_bytes[i] & 254) | bit
 
         # checks shape to change dtype
-        if len(self.inputWave.audioData.shape) == 1:
+        if len(self.tempWave.audioData.shape) == 1:
             self.dtype=np.int16
         else:
             self.dtype=np.int32
 
-        self.outputWave.write_wave(np.frombuffer(self.inputWave.frame_bytes, dtype=self.dtype))
+        self.outputWave.write_wave(np.frombuffer(self.tempWave.frame_bytes, dtype=self.dtype))
 
     def extract_data(self, inputFilePath: str):
         self.init_wave(inputFilePath)
 
         # extract the LSB of each byte
-        extracted = [self.inputWave.frame_bytes[i] & 1 for i in range(len(self.inputWave.frame_bytes))]
+        extracted = [self.tempWave.frame_bytes[i] & 1 for i in range(len(self.tempWave.frame_bytes))]
 
         # convert byte array to string
         string = "".join(chr(int("".join(map(str,extracted[i:i+8])),2)) for i in range(0,len(extracted),8))
