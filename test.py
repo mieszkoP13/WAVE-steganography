@@ -4,6 +4,8 @@ import os
 from CLI import CLI
 from CompareSignals import CompareSignals
 
+COMPARE_SIGNALS = True
+CLEAN_UP_DIRECTORY = True
 TEST_SECRET_MSG = "secretmessage"
 TEST_DIRECTORY = "./sound-examples/"
 TEST_FILE = "ex5.wav"
@@ -15,22 +17,28 @@ class TestSteganographyMethods(unittest.TestCase):
         cli1 = CLI(["-hl",filePath,TEST_SECRET_MSG])
         cli2 = CLI(["-el",cli1.lsb.create_outputFile_name(filePath)])
 
-        with self.subTest():
-            compareSignals = CompareSignals( cli1.lsb.inputWave, cli2.lsb.inputWave )
-            compareSignals.plot_signal()
+        if COMPARE_SIGNALS:
+            with self.subTest():
+                compareSignals = CompareSignals( cli1.lsb.inputWave, cli2.lsb.inputWave )
+                compareSignals.plot_signal()
 
-        #os.remove(cli1.lsb.create_outputFile_name(filePath)) # after test directory clean up   
+        if CLEAN_UP_DIRECTORY:
+            os.remove(cli1.lsb.create_outputFile_name(filePath))
+
         self.assertEqual(cli1.secretMessage, cli2.secretMessage, "lsb metod procedure went wrong")
 
     def test_phase_coding(self, filePath: str = TEST_PATH):
         cli1 = CLI(["-hp",filePath,TEST_SECRET_MSG])
         cli2 = CLI(["-ep",cli1.phaseEncoding.create_outputFile_name(filePath)])
 
-        with self.subTest():
-            compareSignals = CompareSignals( cli1.phaseEncoding.inputWave, cli2.phaseEncoding.inputWave )
-            compareSignals.plot_signal()
+        if COMPARE_SIGNALS:
+            with self.subTest():
+                compareSignals = CompareSignals( cli1.phaseEncoding.inputWave, cli2.phaseEncoding.inputWave )
+                compareSignals.plot_signal()
 
-        #os.remove(cli1.phaseEncoding.create_outputFile_name(filePath)) # after test directory clean up
+        if CLEAN_UP_DIRECTORY:
+            os.remove(cli1.phaseEncoding.create_outputFile_name(filePath))
+
         self.assertEqual(cli1.secretMessage, cli2.secretMessage, "phase coding metod procedure went wrong")
 
     def test_lsb_all(self):
