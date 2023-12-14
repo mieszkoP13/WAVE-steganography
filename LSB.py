@@ -30,7 +30,7 @@ class LSB(SteganographicMethod):
         self.init_wave(inputFilePath)
 
         # append random data to fill rest of the file
-        string = string.ljust(int((len(self.tempWave.frame_bytes)/2-(len(string)*8*8))/8), self.PAD_CHAR)
+        string = string.ljust(int((len(self.tempWave.frameBytes)/2-(len(string)*8*8))/8), self.PAD_CHAR)
         
         # convert text to bitarray
         bits = self.text_to_bitarray(string)
@@ -38,10 +38,10 @@ class LSB(SteganographicMethod):
         id = 0
         # replace LSB of each byte
         for i, bit in enumerate(bits):
-            self.tempWave.frame_bytes[id] = (self.tempWave.frame_bytes[id] & 254) | bit
+            self.tempWave.frameBytes[id] = (self.tempWave.frameBytes[id] & 254) | bit
             id = id + 2
 
-        newAudioData = np.frombuffer(self.tempWave.frame_bytes, dtype=np.int16)
+        newAudioData = np.frombuffer(self.tempWave.frameBytes, dtype=np.int16)
 
         audioDataList = []
         for i in range(0, len(newAudioData), self.tempWave.nchannels):
@@ -56,7 +56,7 @@ class LSB(SteganographicMethod):
         self.init_wave(inputFilePath)
 
         # extract the LSB of each byte
-        extracted = [self.tempWave.frame_bytes[i] & 1 for i in range(0,len(self.tempWave.frame_bytes),2)]
+        extracted = [self.tempWave.frameBytes[i] & 1 for i in range(0,len(self.tempWave.frameBytes),2)]
 
         # convert byte array to string
         string = "".join(chr(int("".join(map(str,extracted[i:i+8])),2)) for i in range(0,len(extracted),8))

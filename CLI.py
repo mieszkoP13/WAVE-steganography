@@ -9,7 +9,7 @@ class CLI():
     def __init__(self, args: List[str] = None):
         self.args = args
         self.lsb: LSB = LSB()
-        self.phaseEncoding: PhaseCoding = PhaseCoding()
+        self.phaseCoding: PhaseCoding = PhaseCoding()
 
         self.fileName: str = ""
         self.secretMessage: str = ""
@@ -40,10 +40,10 @@ class CLI():
         print(self.secretMessage)
         
     def hide_phase_coding(self):
-        self.phaseEncoding.hide_data(self.fileName, self.secretMessage)
+        self.phaseCoding.hide_data(self.fileName, self.secretMessage)
         
     def extract_phase_coding(self):
-        self.secretMessage = self.phaseEncoding.extract_data(self.fileName)
+        self.secretMessage = self.phaseCoding.extract_data(self.fileName)
         print(self.secretMessage)
         
     def show(self):

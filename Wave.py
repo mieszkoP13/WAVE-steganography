@@ -11,7 +11,7 @@ class Wave():
         self.rate: int = rate1
         self.audioData:np.ndarray = audioData1.copy()
 
-        self.frame_bytes = bytearray(self.audioData)
+        self.frameBytes = bytearray(self.audioData)
 
         self.nchannels = len(self.audioData.shape)
 
