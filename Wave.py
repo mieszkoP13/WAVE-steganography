@@ -13,5 +13,7 @@ class Wave():
 
         self.frame_bytes = bytearray(self.audioData)
 
+        self.nchannels = len(self.audioData.shape)
+
     def write_wave(self, data:np.ndarray):
         wavfile.write(self.filePath, self.rate, data)

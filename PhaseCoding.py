@@ -37,7 +37,7 @@ class PhaseCoding(SteganographicMethod):
         blockNumber = int(np.ceil(self.tempWave.audioData.shape[0] / blockLength))
 
         # checks shape to change data to 1 axis
-        if len(self.tempWave.audioData.shape) == 1:
+        if self.tempWave.nchannels == 1:
             self.tempWave.audioData.resize(blockNumber * blockLength, refcheck=False)
             self.tempWave.audioData = self.tempWave.audioData[np.newaxis]
         else:
@@ -93,7 +93,7 @@ class PhaseCoding(SteganographicMethod):
         blockMid = blockLength // 2
 
         # checks shape
-        if len(self.tempWave.audioData.shape) == 1:
+        if self.tempWave.nchannels == 1:
             secret = self.tempWave.audioData[:blockLength]
         else:
             secret = self.tempWave.audioData[:blockLength, 0]
