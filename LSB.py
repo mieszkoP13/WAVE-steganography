@@ -30,10 +30,13 @@ class LSB(SteganographicMethod):
         self.init_wave(inputFilePath)
 
         # append random data to fill rest of the file
-        string = string.ljust(int((len(self.tempWave.frameBytes)/2-(len(string)*8*8))/8), self.PAD_CHAR)
+        string = string.ljust(int(np.floor(len(self.tempWave.frameBytes)/16))-len(string), self.PAD_CHAR)
         
         # convert text to bitarray
         bits = self.text_to_bitarray(string)
+
+        if len(bits) > len(self.tempWave.frameBytes)*2:
+            raise ValueError("Message is too large to hide in the audio file")
 
         id = 0
         # replace LSB of each byte
