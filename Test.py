@@ -4,7 +4,8 @@ import os
 from CLI import CLI
 from Plot import Plot
 
-COMPARE_SIGNALS = True
+PLOT_COMPARE_SIGNALS = False
+PLOT_COMPARE_PHASE = False
 CLEAN_UP_DIRECTORY = True
 TEST_SECRET_MSG = "secretmessage"
 TEST_DIRECTORY = "./sound-examples/"
@@ -17,10 +18,15 @@ class TestSteganographyMethods(unittest.TestCase):
         cli1 = CLI(["-hl",filePath,TEST_SECRET_MSG])
         cli2 = CLI(["-el",cli1.lsb.create_outputFile_name(filePath)])
 
-        if COMPARE_SIGNALS:
+        if PLOT_COMPARE_SIGNALS:
             with self.subTest():
                 compareSignals = Plot()
                 compareSignals.plot_compare_signals( cli1.lsb.inputWave, cli2.lsb.inputWave )
+
+        if PLOT_COMPARE_PHASE:
+            with self.subTest():
+                phase = Plot()
+                phase.plot_compare_phase( cli1.lsb.inputWave, cli2.lsb.inputWave )
 
         if CLEAN_UP_DIRECTORY:
             os.remove(cli1.lsb.create_outputFile_name(filePath))
@@ -31,10 +37,15 @@ class TestSteganographyMethods(unittest.TestCase):
         cli1 = CLI(["-hp",filePath,TEST_SECRET_MSG])
         cli2 = CLI(["-ep",cli1.phaseCoding.create_outputFile_name(filePath)])
 
-        if COMPARE_SIGNALS:
+        if PLOT_COMPARE_SIGNALS:
             with self.subTest():
                 compareSignals = Plot()
                 compareSignals.plot_compare_signals( cli1.phaseCoding.inputWave, cli2.phaseCoding.inputWave )
+
+        if PLOT_COMPARE_PHASE:
+            with self.subTest():
+                phase = Plot()
+                phase.plot_compare_phase( cli1.phaseCoding.inputWave, cli2.phaseCoding.inputWave )
 
         if CLEAN_UP_DIRECTORY:
             os.remove(cli1.phaseCoding.create_outputFile_name(filePath))
