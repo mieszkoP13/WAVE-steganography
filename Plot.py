@@ -59,7 +59,7 @@ class Plot():
         plt.ylim((min(signalDiff), max(signalDiff)))
 
         # plt.show()
-        plt.savefig("mygraph2.png")
+        plt.savefig("compareSignals.png")
         plt.close()
 
     def plot_compare_phase(self, wave1: Wave, wave2: Wave):
@@ -103,5 +103,18 @@ class Plot():
         plt.xlabel("Częstotliwość [Hz]")
 
         #plt.show()
-        plt.savefig("phase.png")
+        plt.savefig("comparePhase.png")
+        plt.close()
+
+    def plot_compare_time_size(self, sizeTimeDict: dict[float,int]):
+
+        plt.figure(figsize=(8, 9))
+        
+        plt.plot( sizeTimeDict.keys(), sizeTimeDict.values() )
+        plt.title('Wykres zależności czasu od wielkości pliku')
+        plt.ylabel("Czas [s]")
+        plt.xlabel("Wielkości pliku")
+
+        #plt.show()
+        plt.savefig("compareTimeSize.png")
         plt.close()
