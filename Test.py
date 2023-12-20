@@ -1,4 +1,5 @@
 import unittest
+import time
 import os
 
 from CLI import CLI
@@ -7,12 +8,19 @@ from Plot import Plot
 PLOT_COMPARE_SIGNALS = False
 PLOT_COMPARE_PHASE = False
 CLEAN_UP_DIRECTORY = True
-TEST_SECRET_MSG = "secretmessage"
-TEST_DIRECTORY = "./sound-examples/"
-TEST_FILE = "ex5.wav"
+TEST_SECRET_MSG = "secretmesssdfjsjfsdhsfhasjidjpia!@#!@$#@$*fsdh23423423"
+TEST_DIRECTORY = "./wave-dataset/Korg-DS-8-Sci-Fi-Sound-Effects-Pack/"
+TEST_FILE = "glitch14.wav"
 TEST_PATH = TEST_DIRECTORY + TEST_FILE
  
 class TestSteganographyMethods(unittest.TestCase):
+
+    def setUp(self):
+        self.startTime = time.time()
+
+    def tearDown(self):
+        self.endTime = time.time()
+        self.elapsedTime = round(self.endTime - self.startTime, 4)
 
     def test_lsb(self, filePath: str = TEST_PATH):
         cli1 = CLI(["-hl",filePath,TEST_SECRET_MSG])
