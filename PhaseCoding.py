@@ -100,7 +100,7 @@ class PhaseCoding(SteganographicMethod):
 
         # get phase -> convert to binary -> convert into characters
         secretPhases = np.angle(np.fft.fft(secret))[blockMid - textLength:blockMid]
-        secretInBinary = (secretPhases < 0).astype(np.int8)
+        secretInBinary = (secretPhases < 0).astype(np.int16)
         secretInIntCode = secretInBinary.reshape((-1, 8)).dot(1 << np.arange(8 - 1, -1, -1))
 
         # combine to original text
