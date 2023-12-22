@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from scipy import stats
 import numpy as np
 from Wave import Wave
 
@@ -108,12 +109,17 @@ class Plot():
 
     def plot_compare_time_size(self, sizeTimeDict: dict[float,int]):
 
-        plt.figure(figsize=(8, 9))
+        times = list(sizeTimeDict.keys())
+        sizes = list(sizeTimeDict.values())
+
+        res = stats.linregress(times, sizes)
         
-        plt.plot( sizeTimeDict.keys(), sizeTimeDict.values() )
-        plt.title('Wykres zależności czasu od wielkości pliku')
+        plt.scatter( times, sizes, label='Dane' )
+        plt.plot(times, res.intercept + np.array(res.slope)*times, 'r', label='Regresja liniowa' )
+        plt.title(f'Wykres zależności czasu trwania procesu \n steganograficznego od wielkości pliku, R\u00b2={res.rvalue**2:.6f}')
+        plt.legend()
         plt.ylabel("Czas [s]")
-        plt.xlabel("Wielkości pliku")
+        plt.xlabel("Wielkości pliku [ilość próbek]")
 
         #plt.show()
         plt.savefig("compareTimeSize.png")

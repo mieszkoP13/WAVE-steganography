@@ -30,7 +30,7 @@ class TestSteganographyMethods(unittest.TestCase):
         if PLOT_COMPARE_FILE_SIZE:
             endTime = time.time()
             elapsedTime = round(endTime - startTime, 4)
-            self.sizeTimeDictLSB[len(cli1.lsb.inputWave.audioData)] = elapsedTime
+            self.sizeTimeDictLSB[len(cli1.lsb.inputWave.audioData)] = float(elapsedTime)
 
         if PLOT_COMPARE_SIGNALS:
             with self.subTest():
@@ -57,7 +57,7 @@ class TestSteganographyMethods(unittest.TestCase):
         if PLOT_COMPARE_FILE_SIZE:
             endTime = time.time()
             elapsedTime = round(endTime - startTime, 4)
-            self.sizeTimeDictPC[len(cli1.phaseCoding.inputWave.audioData)] = elapsedTime
+            self.sizeTimeDictPC[len(cli1.phaseCoding.inputWave.audioData)] = float(elapsedTime)
 
         if PLOT_COMPARE_SIGNALS:
             with self.subTest():
